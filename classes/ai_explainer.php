@@ -26,7 +26,9 @@ use local_ai_bridge\api;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class ai_explainer {
-    /** AI purpose configured in local_ai_bridge. */
+    /**
+    * AI purpose configured in local_ai_bridge.
+    */
     private const PURPOSE = 'roleexplainer-explain';
 
     /**
