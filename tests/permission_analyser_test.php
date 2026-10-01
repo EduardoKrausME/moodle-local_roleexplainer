@@ -220,8 +220,8 @@ final class permission_analyser_test extends advanced_testcase {
         $context = context_system::instance();
         $capability = 'local/roleexplainer:doesnotexist';
 
-        $this->expect_debugging('Capability "' . $capability . '" was not found! This has to be fixed in code.');
         $analysis = $this->analyser->analyse($user->id, $context->id, $capability);
+        $this->assertDebuggingCalled('Capability "' . $capability . '" was not found! This has to be fixed in code.');
         $this->assertFalse($analysis['officialresult']);
         $this->assertFalse($analysis['capabilityexists']);
         $this->assertSame('missing_capability', $analysis['reason']);
