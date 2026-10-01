@@ -145,7 +145,7 @@ class ai_explainer {
      */
     private function parse_response(string $text, array $analysis): array {
         $candidate = trim($text);
-        if (preg_match('/^```(?:json)?\s*(.*?)\s*```$/s', $candidate, $matches)) {
+        if (preg_match('/^\x60{3}(?:json)?\s*(.*?)\s*\x60{3}$/s', $candidate, $matches)) {
             $candidate = trim($matches[1]);
         }
         $decoded = json_decode($candidate, true);
