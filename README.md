@@ -1,6 +1,6 @@
 # Moodle local_roleexplainer
 
-`local_roleexplainer` is an administrator-facing diagnostic plugin for Moodle 4.5+ that explains **why Moodle granted or
+`local_roleexplainer` is an administrator-facing diagnostic plugin for Moodle that explains **why Moodle granted or
 denied a capability** for a user in a specific context.
 
 The plugin deliberately separates two responsibilities:
@@ -9,39 +9,6 @@ The plugin deliberately separates two responsibilities:
 - AI turns that already-computed tree into a human-readable explanation.
 
 The LLM never decides whether a user has a capability and never writes role assignments, role definitions or overrides.
-
-## Requirements
-
-- Moodle 4.5+ (`2024100700` or newer)
-- `local_ai_bridge >= 2026093001`
-- An enabled `local_ai_bridge` purpose with idnumber `roleexplainer-explain`
-- The operator must also satisfy the bridge's own `local/ai_bridge:use`/tenant rules for the AI explanation;
-  deterministic analysis still works if AI is unavailable
-
-All AI traffic goes exclusively through:
-
-```php
-\local_ai_bridge\api::generate('roleexplainer-explain', $messages);
-```
-
-No provider API key, endpoint or model configuration exists in this plugin.
-
-## Installation
-
-Copy the plugin to:
-
-```text
-local/roleexplainer
-```
-
-Then run the normal Moodle upgrade:
-
-```bash
-php admin/cli/upgrade.php
-```
-
-The page is added under **Site administration > Users > Permissions**. The entry requires `local/roleexplainer:use`,
-which is granted to the Manager archetype by default. Site administrators retain their normal implicit access.
 
 ## What is analysed
 
@@ -94,38 +61,3 @@ screens:
 - `moodle/role:override` or `moodle/role:safeoverride` → role override screen.
 
 The plugin itself never changes permissions.
-
-## Critical tests
-
-`tests/permission_analyser_test.php` covers and compares against `has_capability()` for:
-
-- allow;
-- prevent;
-- prohibit;
-- inherited permission;
-- multiple roles;
-- module override;
-- course override;
-- site administrator;
-- nonexistent capability;
-- user without an explicit role.
-
-## CI
-
-The included GitHub Actions workflow uses `moodle-plugin-ci`, installs `EduardoKrausME/moodle-local_ai_bridge` as an
-extra plugin dependency, and runs syntax checks, Moodle coding standards, plugin validation and PHPUnit on Moodle 4.5.
-
-Useful local commands after installing `moodle-plugin-ci` are:
-
-```bash
-moodle-plugin-ci add-plugin EduardoKrausME/moodle-local_ai_bridge
-moodle-plugin-ci install
-moodle-plugin-ci phplint
-moodle-plugin-ci phpcs --max-warnings 0
-moodle-plugin-ci validate
-moodle-plugin-ci phpunit
-```
-
-## License
-
-GNU GPL v3 or later.
