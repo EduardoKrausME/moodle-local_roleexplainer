@@ -27,8 +27,8 @@ use local_ai_bridge\api;
  */
 class ai_explainer {
     /**
-    * AI purpose configured in local_ai_bridge.
-    */
+     * AI purpose configured in local_ai_bridge.
+     */
     private const PURPOSE = 'roleexplainer-explain';
 
     /**
