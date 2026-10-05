@@ -21,6 +21,11 @@ use core_user;
 use core_user\fields;
 use moodleform;
 
+defined('MOODLE_INTERNAL') || die();
+
+global $CFG;
+require_once($CFG->libdir . '/formslib.php');
+
 /**
  * Permission analysis form.
  *
