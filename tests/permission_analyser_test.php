@@ -238,4 +238,58 @@ final class permission_analyser_test extends advanced_testcase {
         $this->assertFalse($analysis['officialresult']);
         $this->assertFalse($analysis['roleaggregate']['result']);
     }
+    /**
+     * System-level access to the plugin does not expose roles in arbitrary courses.
+     */
+    public function test_plugin_access_alone_does_not_allow_permission_traces(): void {
+        $operator = $this->getDataGenerator()->create_user();
+        $target = $this->getDataGenerator()->create_user();
+        $course = $this->getDataGenerator()->create_course();
+        $context = context_course::instance($course->id);
+        $systemcontext = context_system::instance();
+
+        $roleid = create_role('Explainer access', 'explainer_access', 'Access to the plugin only');
+        role_assign($roleid, $operator->id, $systemcontext->id);
+        assign_capability('local/roleexplainer:use', CAP_ALLOW, $roleid, $systemcontext->id);
+        $this->setUser($operator);
+
+        $this->assertTrue(has_capability('local/roleexplainer:use', $systemcontext));
+        $this->assertFalse(access_checker::can_analyse($context));
+
+        $this->expectException(\moodle_exception::class);
+        $this->expectExceptionMessage(get_string('cannotreviewcontext', 'local_roleexplainer'));
+        $this->analyser->analyse($target->id, $context->id, 'moodle/course:update');
+    }
+
+    /**
+     * Native role permissions in one course do not grant visibility into another.
+     */
+    public function test_permission_trace_access_is_scoped_to_target_context(): void {
+        $operator = $this->getDataGenerator()->create_user();
+        $target = $this->getDataGenerator()->create_user();
+        $allowedcourse = $this->getDataGenerator()->create_course();
+        $othercourse = $this->getDataGenerator()->create_course();
+        $allowedcontext = context_course::instance($allowedcourse->id);
+        $othercontext = context_course::instance($othercourse->id);
+
+        $roleid = create_role('Role inspector', 'role_inspector', 'Course-scoped role inspection');
+        role_assign($roleid, $operator->id, $allowedcontext->id);
+        assign_capability('moodle/role:assign', CAP_ALLOW, $roleid, $allowedcontext->id);
+        $this->setUser($operator);
+
+        $this->assertTrue(access_checker::can_analyse($allowedcontext));
+        $this->assertFalse(access_checker::can_analyse($othercontext));
+        $analysis = $this->analyser->analyse($target->id, $allowedcontext->id, 'moodle/course:update');
+        $this->assertSame($allowedcontext->id, $analysis['contextid']);
+    }
+
+    /**
+     * Permission keys generated dynamically must resolve to a language string.
+     */
+    public function test_inherit_permission_string_exists(): void {
+        $this->assertSame('inherit', permission_analyser::permission_key(CAP_INHERIT));
+        $this->assertSame('inherit', permission_analyser::permission_key(null));
+        $this->assertSame('Inherited', get_string('inherit', 'local_roleexplainer'));
+    }
+
 }

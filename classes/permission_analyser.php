@@ -47,14 +47,19 @@ class permission_analyser {
     public function analyse(int $userid, int $contextid, string $capability, bool $doanything = true): array {
         global $CFG, $USER;
 
-        $user = core_user::get_user($userid, 'id, username, firstname, lastname, deleted', IGNORE_MISSING);
-        if (!$user || $user->deleted) {
-            throw new moodle_exception('invaliduser', 'local_roleexplainer');
-        }
-
         $context = context::instance_by_id($contextid, IGNORE_MISSING);
         if (!$context) {
             throw new moodle_exception('invalidcontext', 'local_roleexplainer');
+        }
+
+        // A system-level plugin capability alone must not expose a target context's role data.
+        if (!access_checker::can_analyse($context)) {
+            throw new moodle_exception('cannotreviewcontext', 'local_roleexplainer');
+        }
+
+        $user = core_user::get_user($userid, 'id, username, firstname, lastname, deleted', IGNORE_MISSING);
+        if (!$user || $user->deleted) {
+            throw new moodle_exception('invaliduser', 'local_roleexplainer');
         }
 
         $capinfo = get_capability_info($capability);

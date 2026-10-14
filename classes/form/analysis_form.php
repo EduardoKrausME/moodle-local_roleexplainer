@@ -16,9 +16,11 @@
 
 namespace local_roleexplainer\form;
 
+use context;
 use context_system;
 use core_user;
 use core_user\fields;
+use local_roleexplainer\access_checker;
 use moodleform;
 
 defined('MOODLE_INTERNAL') || die();
@@ -109,8 +111,13 @@ class analysis_form extends moodleform {
         if (!empty($data['userid']) && !$DB->record_exists('user', ['id' => $data['userid'], 'deleted' => 0])) {
             $errors['userid'] = get_string('invaliduser', 'local_roleexplainer');
         }
-        if (!empty($data['contextid']) && !$DB->record_exists('context', ['id' => $data['contextid']])) {
-            $errors['contextid'] = get_string('invalidcontext', 'local_roleexplainer');
+        if (!empty($data['contextid'])) {
+            $context = context::instance_by_id((int)$data['contextid'], IGNORE_MISSING);
+            if (!$context) {
+                $errors['contextid'] = get_string('invalidcontext', 'local_roleexplainer');
+            } else if (!access_checker::can_analyse($context)) {
+                $errors['contextid'] = get_string('cannotreviewcontext', 'local_roleexplainer');
+            }
         }
         return $errors;
     }

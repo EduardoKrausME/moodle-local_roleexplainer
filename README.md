@@ -10,6 +10,16 @@ The plugin deliberately separates two responsibilities:
 
 The LLM never decides whether a user has a capability and never writes role assignments, role definitions or overrides.
 
+## Installation
+
+Download the **`local_roleexplainer_<version>.zip` release asset** from [GitHub Releases](https://github.com/EduardoKrausME/moodle-local_roleexplainer/releases) and install it through Moodle's **Site administration > Plugins > Install plugins**. The release ZIP has the required `roleexplainer/` root folder.
+
+Do not use the automatic GitHub **Source code (zip)** download for installation: GitHub wraps it in a repository/version folder that Moodle rejects as `rootdirinvalid`. To package a checkout manually, run:
+
+```sh
+git archive --format=zip --prefix=roleexplainer/ HEAD -o local_roleexplainer.zip
+```
+
 ## What is analysed
 
 Given a target user, capability and context ID, the plugin collects and displays:
@@ -50,6 +60,10 @@ The prompt explicitly requires the model to:
 - never make an automatic change.
 
 If AI is unavailable, the deterministic diagnosis is still shown.
+
+## Permission to inspect a context
+
+Opening the admin page requires `local/roleexplainer:use` in the system context. Analysing a user additionally requires at least one of `moodle/role:assign`, `moodle/role:safeoverride`, `moodle/role:override`, or `moodle/role:manage` **in the target context**, matching Moodle's native Check permissions screen. The form rejects unauthorised context IDs, and the analyser independently enforces this check before returning role evidence.
 
 ## Native Moodle links
 
