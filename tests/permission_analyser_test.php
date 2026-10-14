@@ -238,6 +238,7 @@ final class permission_analyser_test extends advanced_testcase {
         $this->assertFalse($analysis['officialresult']);
         $this->assertFalse($analysis['roleaggregate']['result']);
     }
+
     /**
      * System-level access to the plugin does not expose roles in arbitrary courses.
      */
