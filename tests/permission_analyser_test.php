@@ -42,6 +42,8 @@ final class permission_analyser_test extends advanced_testcase {
     protected function setUp(): void {
         parent::setUp();
         $this->resetAfterTest(true);
+        // Permission traces require an authorised operator, independently of the target user.
+        $this->setAdminUser();
         $this->analyser = new permission_analyser();
     }
 
@@ -204,6 +206,8 @@ final class permission_analyser_test extends advanced_testcase {
         $user = $this->getDataGenerator()->create_user();
         set_config('siteadmins', (string)$user->id);
         accesslib_clear_all_caches(true);
+        // The new site-admin list replaces the default admin used in setUp().
+        $this->setUser($user);
         $context = context_system::instance();
 
         $analysis = $this->assert_matches_core($user->id, $context->id, 'moodle/site:config');
